@@ -1,0 +1,64 @@
+Parameters:
+    VPCCidrBlock:
+      Type: String
+      Default: 10.10.0.0/16
+      Description: CIDR BLOCK FOR VPC
+    MyFirstSubNetCIDR:
+      Type: String
+      Default: 10.10.10.0/24
+      Description: CIDR BLOCK FOR VPC
+Resources:
+    MySecondVPC:
+      Type: AWS::EC2::VPC
+      Properties:
+          CidrBlock:
+              Ref: VPCCidrBlock
+          EnableDnsSupport: True
+          EnableDnsHostnames: True
+          Tags:
+            - Key: Name
+              Value: SecondOne
+    MySecondVpcIG1:
+      Type: AWS::EC2::InternetGateway
+      Properties: 
+        Tags:
+          - Key: Name
+            Value: IG1
+    MySecondVpcIG1Att:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties: 
+        InternetGatewayId:
+          Ref: MySecondVpcIG1
+        VpcId:
+          Ref: MySecondVPC
+    MyFirstSubNet:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: us-east-2a
+        CidrBlock: 
+          Ref: MyFirstSubNetCIDR
+        MapPublicIpOnLaunch: True
+        Tags:
+          - Key: Name
+            Value: MyFirstSubNet
+        VpcId:
+          Ref: MySecondVPC
+      RouteTable:
+        Type: AWS::EC2::RouteTable
+        Properties:
+          VpcId:
+            Ref: MySecondVPC
+          Tags:
+            - Key: Name
+              Value: RouteTable
+      MyFirstRoute:
+        Type: AWS::EC2::Route
+        Properties:
+          DestinationCidrBlock: 10.10.10.0/24
+          EgressOnlyInternetGatewayId: IG1
+          GatewayId: MySecondVpcIG1
+          RouteTableId: RouteTable
+Outputs:
+    VPCID:
+      Value: 
+        Ref: MySecondVPC

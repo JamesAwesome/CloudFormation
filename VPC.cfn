@@ -1,0 +1,20 @@
+Parameters:
+    VPCCidrBlock:
+      Type: String
+      Default: 10.10.0.0/16
+      Description: CIDR BLOCK FOR VPC
+Resources:
+    MyFirstVPC:
+      Type: AWS::EC2::VPC
+      Properties:
+          CidrBlock:
+              Ref: VPCCidrBlock
+          EnableDnsSupport: True
+          EnableDnsHostnames: True
+          Tags:
+            - Key: Name
+              Value: FirstOne
+Outputs:
+    VPCID:
+      Value: 
+        Ref: MyFirstVPC
