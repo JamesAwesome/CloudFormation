@@ -7,6 +7,7 @@ Parameters:
       Type: String
       Default: 10.10.10.0/24
       Description: CIDR BLOCK FOR VPC
+
 Resources:
     MySecondVPC:
       Type: AWS::EC2::VPC
@@ -20,13 +21,13 @@ Resources:
               Value: SecondOne
     MySecondVpcIG1:
       Type: AWS::EC2::InternetGateway
-      Properties: 
+      Properties:
         Tags:
           - Key: Name
             Value: IG1
     MySecondVpcIG1Att:
       Type: AWS::EC2::VPCGatewayAttachment
-      Properties: 
+      Properties:
         InternetGatewayId:
           Ref: MySecondVpcIG1
         VpcId:
@@ -35,7 +36,7 @@ Resources:
       Type: AWS::EC2::Subnet
       Properties:
         AvailabilityZone: us-east-2a
-        CidrBlock: 
+        CidrBlock:
           Ref: MyFirstSubNetCIDR
         MapPublicIpOnLaunch: True
         Tags:
@@ -43,22 +44,31 @@ Resources:
             Value: MyFirstSubNet
         VpcId:
           Ref: MySecondVPC
-      RouteTable:
-        Type: AWS::EC2::RouteTable
-        Properties:
-          VpcId:
-            Ref: MySecondVPC
-          Tags:
-            - Key: Name
-              Value: RouteTable
-      MyFirstRoute:
-        Type: AWS::EC2::Route
-        Properties:
-          DestinationCidrBlock: 10.10.10.0/24
-          EgressOnlyInternetGatewayId: IG1
-          GatewayId: MySecondVpcIG1
-          RouteTableId: RouteTable
+    RouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:
+          Ref: MySecondVPC
+        Tags:
+          - Key: Name
+            Value: RouteTable
+    MyFirstRoute:
+      Type: AWS::EC2::Route
+      Properties:
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId:
+          Ref: MySecondVpcIG1
+        RouteTableId:
+          Ref: RouteTable
+    MyFirstRouteAssoc:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        RouteTableId:
+          Ref: RouteTable
+        SubnetId:
+          Ref: MyFirstSubNet
+
 Outputs:
     VPCID:
-      Value: 
+      Value:
         Ref: MySecondVPC
